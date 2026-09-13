@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install Node.js & system dependencies
+# Install Node.js & system dependencies required by Reflex
 RUN apt-get update && apt-get install -y \
     curl \
     unzip \
@@ -11,18 +11,15 @@ RUN apt-get update && apt-get install -y \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all project files into the container
+# Copy all project code into container
 COPY . .
 
-# Initialize Reflex non-interactively
-RUN reflex init --blank
-
-# Expose default ports
+# Expose ports for frontend and backend API
 EXPOSE 3000 8000
 
-# Run Reflex in production mode
+# Start Reflex in production mode
 CMD ["reflex", "run", "--env", "prod"]
