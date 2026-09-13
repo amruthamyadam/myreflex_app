@@ -1,24 +1,27 @@
-
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install Node.js & npm (required for Reflex frontend build)
-RUN apt-get update && apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    rm -rf /var/lib/apt-get/lists/*
+# Install Node.js & system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    git \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
+# Copy requirements and install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy all project files into the container
 COPY . .
 
-# Initialize and export production frontend assets
-RUN reflex init
-RUN reflex export --frontend-only --no-zip
+# Initialize Reflex non-interactively
+RUN reflex init --blank
 
-# Expose backend/frontend ports
+# Expose default ports
 EXPOSE 3000 8000
 
 # Run Reflex in production mode
